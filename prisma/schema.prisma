@@ -9,3 +9,111 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Cluster {
+  id   String @id @default(uuid())
+  nama String
+
+  supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId String?     @unique
+
+  blok Blok[]
+}
+
+model Supervisor {
+  id   String @id @default(uuid())
+  telp String
+
+  cluster Cluster?
+}
+
+model Blok {
+  id        String @id @default(uuid())
+  nama      String
+  desa      String
+  kecamatan String
+  kabupaten String
+  luas      Float
+
+  korlap   Korlap? @relation(fields: [korlapId], references: [id])
+  korlapId String? @unique
+
+  cluster   Cluster? @relation(fields: [clusterId], references: [id])
+  clusterId String?
+
+  lahan Lahan[]
+
+  rencanaJadwal RencanaJadwal?
+}
+
+model Korlap {
+  id   String @id @default(uuid())
+  nama String
+
+  blok Blok?
+}
+
+model Lahan {
+  id   String @id @default(uuid())
+  nama String
+  luas Float
+
+  Blok   Blok?   @relation(fields: [blokId], references: [id])
+  blokId String?
+
+  petani Petani[]
+
+  benih Benih[]
+}
+
+model Petani {
+  id           String @id @default(uuid())
+  nama         String
+  nik          String
+  desa         String
+  kecamatan    String
+  kabupaten    String
+  tempatLahir  String
+  tanggalLahir String
+  noHp         String
+  namaPasangan String
+  nomorKk      String
+  npwp         String
+  noRekening   String
+
+  lahan Lahan[]
+}
+
+model RencanaJadwal {
+  id        String @id @default(uuid())
+  budidaya  String
+  hasilUji  String
+  rabHektar String
+  rabTotal  String
+
+  blok   Blok?   @relation(fields: [blokId], references: [id])
+  blokId String? @unique
+
+  rencana Rencana?
+}
+
+model Rencana {
+  id               String @id @default(uuid())
+  olahLahan        String
+  pemberianDolomit String
+
+  rencanaJadwal   RencanaJadwal? @relation(fields: [rencanaJadwalId], references: [id])
+  rencanaJadwalId String?        @unique
+
+  benih Benih[]
+}
+
+model Benih {
+  id String @id @default(uuid())
+
+  rencana   Rencana? @relation(fields: [rencanaId], references: [id])
+  rencanaId String?
+
+  lahan   Lahan?  @relation(fields: [lahanId], references: [id])
+  lahanId String?
+}
